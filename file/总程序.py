@@ -1,4 +1,4 @@
-# p.py
+
 import subprocess
 import os
 import sys
@@ -7,15 +7,13 @@ class FileBrowser:
     def __init__(self):
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.current_path = self.current_dir
-        self.history = []  # 用于返回上一级
+        self.history = []
         
     def get_items(self, path):
-        """获取当前路径下的所有项目和文件夹"""
         items = []
         try:
             for item in os.listdir(path):
                 item_path = os.path.join(path, item)
-                # 排除当前脚本文件
                 if item_path == os.path.join(self.current_dir, 'p.py'):
                     continue
                     
@@ -26,7 +24,6 @@ class FileBrowser:
                         'type': 'folder'
                     })
                 elif item.endswith('.py'):
-                    # 如果在根目录，不显示Python文件
                     if path == self.current_dir:
                         continue
                     items.append({
@@ -37,17 +34,13 @@ class FileBrowser:
         except PermissionError:
             print(f"无法访问: {path}")
         
-        # 排序：文件夹在前，文件在后
         items.sort(key=lambda x: (x['type'] != 'folder', x['name']))
         return items
     
     def display_browser(self, items):
-        """显示文件浏览器界面"""
         print("\n" + "="*60)
-        print("Python文件浏览器")
+        print("题目浏览器")
         print("="*60)
-        
-        # 显示当前路径
         rel_path = os.path.relpath(self.current_path, self.current_dir)
         if rel_path == '.':
             display_path = '根目录'
@@ -56,7 +49,6 @@ class FileBrowser:
         print(f"📁 当前位置: {display_path}")
         print("-"*60)
         
-        # 显示内容
         if not items:
             print("  (空目录)")
         else:
@@ -68,7 +60,6 @@ class FileBrowser:
         
         print("-"*60)
         
-        # 菜单选项
         print("操作选项:")
         print("  [数字] - 进入文件夹或选择文件")
         if self.history:
@@ -79,7 +70,6 @@ class FileBrowser:
         print("="*60)
     
     def view_code(self, file_path):
-        """查看文件代码"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 code = f.read()
@@ -89,7 +79,6 @@ class FileBrowser:
             print(f"📁 路径: {os.path.relpath(file_path, self.current_dir)}")
             print("="*60)
             
-            # 显示带行号的代码
             lines = code.split('\n')
             for i, line in enumerate(lines, 1):
                 print(f"{i:4} | {line}")
@@ -100,7 +89,6 @@ class FileBrowser:
             print(f"❌ 读取文件失败: {e}")
     
     def run_file(self, file_path):
-        """运行Python文件"""
         print("\n" + "="*60)
         print(f"▶ 正在运行: {os.path.basename(file_path)}")
         print("="*60)
@@ -132,7 +120,6 @@ class FileBrowser:
             print(f"❌ 运行出错: {e}")
     
     def show_file_info(self, file_path):
-        """显示文件信息"""
         try:
             stat = os.stat(file_path)
             print("\n" + "="*60)
@@ -147,18 +134,15 @@ class FileBrowser:
             print(f"❌ 获取信息失败: {e}")
     
     def copy_path(self, file_path):
-        """复制文件路径到剪贴板（如果可用）"""
         try:
             import pyperclip # type: ignore
             pyperclip.copy(file_path)
             print(f"✅ 路径已复制到剪贴板")
         except ImportError:
-            # 如果没有pyperclip，直接显示路径
             print(f"📋 文件路径: {file_path}")
             print("💡 提示: 安装 pyperclip (pip install pyperclip) 可支持自动复制")
     
     def handle_file_selection(self, file_path):
-        """处理选中文件后的操作"""
         while True:
             print("\n" + "-"*60)
             print(f"📄 文件: {os.path.basename(file_path)}")
@@ -190,22 +174,15 @@ class FileBrowser:
                 print("❌ 无效选择，请重新输入")
     
     def run(self):
-        """主程序"""
         while True:
-            # 获取当前目录内容
             items = self.get_items(self.current_path)
-            
-            # 显示浏览器
             self.display_browser(items)
-            
-            # 获取用户输入
             try:
                 choice = input("\n👉 请输入选项: ").strip().lower()
                 
                 if not choice:
                     continue
                 
-                # 处理特殊命令
                 if choice == 'q':
                     print("\n👋 再见！")
                     break
@@ -219,7 +196,6 @@ class FileBrowser:
                         input("按Enter键继续...")
                         continue
                 
-                # 尝试转换为数字
                 try:
                     choice_num = int(choice)
                 except ValueError:
@@ -227,16 +203,13 @@ class FileBrowser:
                     input("按Enter键继续...")
                     continue
                 
-                # 检查选择是否有效
                 if 1 <= choice_num <= len(items):
                     selected = items[choice_num - 1]
                     
                     if selected['type'] == 'folder':
-                        # 进入文件夹
                         self.history.append(self.current_path)
                         self.current_path = selected['path']
                     else:
-                        # 处理文件
                         self.handle_file_selection(selected['path'])
                 else:
                     print("❌ 无效选择，请重新输入")

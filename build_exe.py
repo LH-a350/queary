@@ -2,7 +2,6 @@
 import PyInstaller.__main__
 import os
 import sys
-
 def build_exe():
     # 获取当前目录
     current_dir = os.path.dirname(os.path.abspath(__file__))
